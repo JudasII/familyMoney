@@ -52,4 +52,15 @@ class CashCardController {
                 ));
         return ResponseEntity.ok(page.getContent());
     }
+
+    @PutMapping("/{requestedId}")
+    private ResponseEntity<Object> putCashCard(@PathVariable Long requestedId, @RequestBody CashCard cashCardUpdate, Principal principal) {
+        Optional<CashCard> optionalCashCard = Optional.ofNullable(cashCardRepository.findByIdAndOwner(requestedId, principal.getName()));
+
+        return optionalCashCard.map(cashcard -> {
+            CashCard updatedCashCard = new CashCard(cashcard.id(), cashCardUpdate.amount(), principal.getName());
+            cashCardRepository.save(updatedCashCard);
+            return ResponseEntity.noContent().build();
+        }).orElseGet(() -> ResponseEntity.notFound().build());
+    }
 }
